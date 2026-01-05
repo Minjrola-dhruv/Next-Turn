@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – Next Turn</title>
+
+  <!-- GLOBAL STYLES -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<!-- 🔒 PROTECT DASHBOARD -->
+<script>
+  if (!localStorage.getItem("user")) {
+    window.location.href = "login.html";
+  }
+</script>
+
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>Next Turn</h2>
+    <p>Dashboard</p>
+    <p>QR Code</p>
+    <p>Queue</p>
+    <p onclick="logoutUser()" style="cursor:pointer;">Logout</p>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <h1>Client Dashboard</h1>
+    <p class="subtitle">Overview of today's queue activity</p>
+
+    <!-- ================= STATS ================= -->
+    <div class="stat-grid">
+
+      <div class="card stat-card blue">
+        <h2 id="waitingCount"></h2>
+        <p>People Waiting</p>
+      </div>
+
+      <div class="card stat-card green">
+        <h2 id="avgTime">2 min</h2>
+        <p>Avg Waiting Time</p>
+      </div>
+
+      <div class="card stat-card yellow">
+        <h2 id="completedCount"></h2>
+        <p>Completed Turns</p>
+      </div>
+
+    </div>
+
+    <!-- ================= QR CODE SECTION ================= -->
+    <div class="qr-container">
+      <h2>Queue QR Code</h2>
+      <p>Scan this QR to join the queue</p>
+
+      <div id="qrCode"></div>
+
+      <p class="form-link">
+        <a id="formLink" href="#" target="_blank"></a>
+      </p>
+
+      <button onclick="generateQR()">Generate New QR</button>
+    </div>
+
+    <!-- ================= EMBED GOOGLE FORM ================= -->
+    <iframe
+      id="formFrame"
+      style="width:100%; height:0; border:none; margin-top:20px;">
+    </iframe>
+
+  </div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+
+<!-- ================= QR + FORM LOGIC ================= -->
+<script>
+/* 🔁 GOOGLE FORM PREFILLED BASE URL
+   IMPORTANT: must end with "=" */
+const FORM_BASE =
+  "https://docs.google.com/forms/d/e/1FAIpQLScraFTx6Ep5NcTdbcddyCl-J53DaWg2dBmJ5oPsuETxEod9Jw/viewform?usp=pp_url&entry.64203407=";
+
+/* 🔁 GENERATE QR */
+function generateQR() {
+  const turnId = "TURN-" + Date.now();
+  const formURL = FORM_BASE + encodeURIComponent(turnId);
+
+  const qrDiv = document.getElementById("qrCode");
+  qrDiv.innerHTML = "";
+
+  new QRCode(qrDiv, {
+    text: formURL,
+    width: 180,
+    height: 180
+  });
+
+  const link = document.getElementById("formLink");
+  link.href = formURL;
+  link.innerText = "Open Google Form (Turn ID: " + turnId + ")";
+
+  qrDiv.onclick = () => openForm(formURL);
+}
+
+/* 🔁 OPEN FORM ON SAME PAGE */
+function openForm(url) {
+  const frame = document.getElementById("formFrame");
+  frame.src = url;
+  frame.style.height = "700px";
+}
+
+/* 🔓 LOGOUT */
+function logoutUser() {
+  localStorage.removeItem("user");
+  window.location.href = "index.html";
+}
+</script>
+
+<!-- ================= FIREBASE CONFIG ================= -->
+<script src="firebase-config.js"></script>
+
+<!-- ================= DASHBOARD LIVE LOGIC ================= -->
+<script src="dashboard.js"></script>
+
+</body>
+</html>

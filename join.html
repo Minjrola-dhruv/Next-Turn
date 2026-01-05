@@ -363,7 +363,10 @@
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const API_URL = 'http://localhost:3000/api';
+// Backend API URL - automatically use production or development
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api'
+  : 'https://nextturn-three.vercel.app/api';
 
 let currentPlaceId = null;
 let currentPlace = null;
@@ -442,7 +445,7 @@ document.getElementById('joinQueueForm').addEventListener('submit', async (e) =>
     }
 
     // Call backend API
-    const response = await fetch(`${API_URL}/queue/join`, {
+    const response = await fetch(`${API_URL}/queue-join`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

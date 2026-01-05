@@ -10,8 +10,10 @@ let currentPlace = null;
 let currentlyServing = null;
 let queueListener = null;
 
-// Backend API URL
-const API_URL = 'http://localhost:3000/api';
+// Backend API URL - automatically use production or development URL
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api'
+  : 'https://nextturn-three.vercel.app/api';
 
 // Check authentication
 auth.onAuthStateChanged(user => {
@@ -420,7 +422,7 @@ async function clearQueue() {
  */
 async function checkNotifications() {
   try {
-    const response = await fetch(`${API_URL}/queue/check-notifications`, {
+    const response = await fetch(`${API_URL}/check-notifications`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ placeId: currentPlaceId })
@@ -428,9 +430,11 @@ async function checkNotifications() {
     
     const result = await response.json();
     console.log('Notifications checked:', result);
+    return result;
   } catch (error) {
     console.error('Notification check error:', error);
     // Fail silently - notifications are not critical
+    return null;
   }
 }
 
